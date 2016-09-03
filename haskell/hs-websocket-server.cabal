@@ -21,6 +21,7 @@ executable hs-websocket-server
                      , aeson
                      , async
                      , bytestring
+                     , concurrent-extra
                      , unagi-chan
                      , containers
                      , http-types
