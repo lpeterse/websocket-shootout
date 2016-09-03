@@ -19,16 +19,12 @@ executable hs-websocket-server
   ghc-options:         -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base >= 4.7 && < 5
                      , aeson
-                     , async
+                     , broadcast-chan
                      , bytestring
-                     , unagi-chan
-                     , containers
                      , http-types
                      , lens
                      , lens-aeson
                      , raw-strings-qq
-                     , stm
-                     , stm-containers
                      , text
                      , wai
                      , wai-websockets

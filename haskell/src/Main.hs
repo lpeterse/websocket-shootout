@@ -5,7 +5,7 @@
 module Main where
 
 import qualified Control.Concurrent as C
-import Control.Concurrent.Chan.Unagi
+import Control.Concurrent.BroadcastChan
 import Control.Lens hiding ((.=))
 import Control.Monad (forever)
 import Data.Aeson
@@ -24,6 +24,9 @@ import Network.Wai.Handler.WebSockets
 import Network.WebSockets
 import Text.RawString.QQ
 
+type OutChan = BroadcastChan Out ByteString
+type InChan = BroadcastChan In ByteString
+
 amendTest :: Maybe Value
 amendTest = decode $ [r|
 {"type":"broadcast","payload":{"foo": "bar"}}
@@ -33,9 +36,9 @@ amendBroadcast :: Value -> Value
 amendBroadcast v =
   v & key "type" . _String .~ "broadcastResult"
 
-broadcastThread :: OutChan ByteString -> Connection -> IO ()
+broadcastThread :: OutChan -> Connection -> IO ()
 broadcastThread bc conn = forever $ do
-  t <- readChan bc
+  t <- readBChan bc
   sendTextData conn t
 
 wtf conn =
@@ -47,9 +50,9 @@ mkPayload type_ payload = encode $
          , "payload" .= payload
          ]
 
-bidiHandler :: InChan ByteString -> Connection -> IO ()
+bidiHandler :: InChan -> Connection -> IO ()
 bidiHandler inp conn = do
-  outp <- dupChan inp
+  outp <- newBChanListener inp
   _ <- C.forkIO (broadcastThread outp conn)
   forever $ do
     msg <- receiveDataMessage conn
@@ -59,23 +62,18 @@ bidiHandler inp conn = do
         case t ^? key "type" . _String of
           Just "echo" -> sendTextData conn (mkPayload "echo" payload)
           Just "broadcast" -> do
-            writeChan inp (mkPayload "broadcast" payload)
+            writeBChan inp (mkPayload "broadcast" payload)
             sendTextData conn (mkPayload "broadcastResult" payload)
           _ -> wtf conn
       _ -> do
         wtf conn
 
-wsApp :: InChan ByteString -> ServerApp
+wsApp :: InChan -> ServerApp
 wsApp inp pending = do
   conn <- acceptRequest pending
   bidiHandler inp conn
 
 main :: IO ()
 main = do
-  (inp, outp) <- newChan
-  -- This is really unfortunate... We need some lazy IO like
-  -- IO (InChan, [OutChan]) from where we can draw duplicate output channels
-  -- transparently. Otherwise the prototypical OutChan will just accumulate
-  -- payloads until it overflows
-  C.forkIO $ forever $ readChan outp
+  inp <- newBroadcastChan
   runServer "127.0.0.1" 3000 (wsApp inp)
