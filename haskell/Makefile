@@ -2,10 +2,10 @@ profiling-build:
 	stack install --library-profiling --executable-profiling
 
 profiling-run: profiling-build
-	stack exec -- strace hs-websocket-server +RTS -P -p
+	stack exec -- hs-websocket-server +RTS -P
 
 build:
 	stack install
 
-run:
+run: build
 	stack exec hs-websocket-server
