@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes       #-}
 
 module Main where
 
@@ -10,34 +9,17 @@ import Control.Lens hiding ((.=))
 import Control.Monad (forever)
 import Data.Aeson
 import Data.Aeson.Lens
-import Data.Aeson.Types
-import Data.ByteString.Lazy (ByteString, toStrict)
-import qualified Data.Char as DC
-import Data.Functor (void)
+import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
-import Data.Text.Encoding (decodeUtf8)
-import GHC.Generics
-import Network.HTTP.Types (status400)
-import Network.Wai
-import Network.Wai.Handler.Warp
-import Network.Wai.Handler.WebSockets
+-- import Network.Wai.Handler.WebSockets
 import Network.WebSockets
-import Text.RawString.QQ
-
-amendTest :: Maybe Value
-amendTest = decode $ [r|
-{"type":"broadcast","payload":{"foo": "bar"}}
-|]
-
-amendBroadcast :: Value -> Value
-amendBroadcast v =
-  v & key "type" . _String .~ "broadcastResult"
 
 broadcastThread :: OutChan ByteString -> Connection -> IO ()
 broadcastThread bc conn = forever $ do
   t <- readChan bc
   sendTextData conn t
 
+wtf :: Connection -> IO ()
 wtf conn =
   sendTextData conn ("<img src=\"http://bit.ly/1kmRC7Q\" />" :: Text)
 
