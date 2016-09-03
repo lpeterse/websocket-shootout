@@ -4,7 +4,9 @@
 module Main where
 
 import qualified Control.Concurrent as C
-import Control.Concurrent.Chan.Unagi
+-- import Control.Concurrent.Chan.Unagi
+import Control.Concurrent.STM (atomically)
+import qualified Control.Concurrent.STM.TChan as TC
 import Control.Lens hiding ((.=))
 import Control.Monad (forever)
 import Data.Aeson
@@ -13,9 +15,9 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
 import Network.WebSockets
 
-broadcastThread :: OutChan ByteString -> Connection -> IO ()
+broadcastThread :: TC.TChan ByteString -> Connection -> IO ()
 broadcastThread bc conn = forever $ do
-  t <- readChan bc
+  t <- atomically $ TC.readTChan bc
   sendTextData conn t
 
 wtf :: Connection -> IO ()
@@ -28,9 +30,9 @@ mkPayload type_ payload = encode $
          , "payload" .= payload
          ]
 
-bidiHandler :: InChan ByteString -> Connection -> IO ()
+bidiHandler :: TC.TChan ByteString -> Connection -> IO ()
 bidiHandler inp conn = do
-  outp <- dupChan inp
+  outp <- atomically $ TC.dupTChan inp
   _ <- C.forkIO (broadcastThread outp conn)
   forever $ do
     msg <- receiveDataMessage conn
@@ -42,18 +44,18 @@ bidiHandler inp conn = do
         case eventType of
           Just "echo" -> sendTextData conn (mkPayload "echo" payload)
           Just "broadcast" -> do
-            writeChan inp (mkPayload "broadcast" payload)
+            atomically $ TC.writeTChan inp (mkPayload "broadcast" payload)
             sendTextData conn (mkPayload "broadcastResult" payload)
           _ -> wtf conn
       _ -> do
         wtf conn
 
-wsApp :: InChan ByteString -> ServerApp
+wsApp :: TC.TChan ByteString -> ServerApp
 wsApp inp pending = do
   conn <- acceptRequest pending
   bidiHandler inp conn
 
 main :: IO ()
 main = do
-  (inp, outp) <- newChan
-  runServer "127.0.0.1" 3000 (wsApp inp)
+  tchan <- atomically $ TC.newBroadcastTChan
+  runServer "127.0.0.1" 3000 (wsApp tchan)
