@@ -30,7 +30,7 @@ executable hs-websocket-server
                      , stm
                      -- , stm-containers
                      , text
-                     -- , wai
-                     -- , wai-websockets
-                     -- , warp
+                     , wai
+                     , wai-websockets
+                     , warp
                      , websockets

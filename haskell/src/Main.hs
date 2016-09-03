@@ -9,8 +9,12 @@ import Control.Lens hiding ((.=))
 import Control.Monad (forever)
 import Data.Aeson
 import Data.Aeson.Lens
+-- import Data.ByteString (ByteString)
+-- import Data.ByteString.Lazy (toStrict)
 import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
+import Network.Wai.Handler.Warp (run)
+import Network.Wai.Handler.WebSockets as WaiWS
 import Network.WebSockets
 
 broadcastThread :: OutChan ByteString -> Connection -> IO ()
@@ -55,5 +59,6 @@ wsApp inp pending = do
 
 main :: IO ()
 main = do
-  (inp, outp) <- newChan
+  (inp, _) <- newChan
   runServer "127.0.0.1" 3000 (wsApp inp)
+  -- run 3000 (WaiWS.websocketsOr defaultConnectionOptions (wsApp inp) undefined)
