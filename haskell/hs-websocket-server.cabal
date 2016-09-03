@@ -21,17 +21,22 @@ executable hs-websocket-server
                      , aeson
                      , async
                      , bytestring
+                     , conduit
                      , unagi-chan
                      , containers
                      , http-types
                      , lens
                      , lens-aeson
+                     , lifted-base
+                     , mtl
                      -- , raw-strings-qq
                      , stm
                      -- , stm-containers
                      , text
+                     , transformers
                      , wai
                      , wai-websockets
                      , warp
                      , websockets
+                     , yesod-core
                      , yesod-websockets
