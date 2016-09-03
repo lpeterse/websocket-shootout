@@ -34,3 +34,4 @@ executable hs-websocket-server
                      , wai-websockets
                      , warp
                      , websockets
+                     , yesod-websockets
