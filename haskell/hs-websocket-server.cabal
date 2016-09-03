@@ -26,11 +26,11 @@ executable hs-websocket-server
                      , http-types
                      , lens
                      , lens-aeson
-                     , raw-strings-qq
+                     -- , raw-strings-qq
                      , stm
-                     , stm-containers
+                     -- , stm-containers
                      , text
-                     , wai
-                     , wai-websockets
-                     , warp
+                     -- , wai
+                     -- , wai-websockets
+                     -- , warp
                      , websockets

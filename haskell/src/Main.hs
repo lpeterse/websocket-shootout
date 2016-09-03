@@ -11,7 +11,6 @@ import Data.Aeson
 import Data.Aeson.Lens
 import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text)
--- import Network.Wai.Handler.WebSockets
 import Network.WebSockets
 
 broadcastThread :: OutChan ByteString -> Connection -> IO ()
