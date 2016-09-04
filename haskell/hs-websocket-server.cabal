@@ -21,16 +21,10 @@ executable hs-websocket-server
                      , aeson
                      , async
                      , bytestring
-                     , unagi-chan
                      , containers
                      , http-types
                      , lens
                      , lens-aeson
                      , raw-strings-qq
-                     , stm
-                     , stm-containers
                      , text
-                     , wai
-                     , wai-websockets
-                     , warp
                      , websockets
