@@ -48,7 +48,7 @@ bidiHandler bc conn =
       bl <- listen bc
       forever $ do
         msg <- accept bl
-        sendTextData conn msg
+        sendTextData conn $! msg
     handleInput = forever $ do
       msg <- receiveDataMessage conn
       case msg of
@@ -57,10 +57,10 @@ bidiHandler bc conn =
               Just payload = v ^? key "payload"
               eventType = v ^? key "type" . _String
           case eventType of
-            Just "echo" -> sendTextData conn (mkPayload "echo" payload)
+            Just "echo" -> sendTextData conn $! mkPayload "echo" payload
             Just "broadcast" -> do
               broadcast bc (mkPayload "broadcast" payload)
-              sendTextData conn (mkPayload "broadcastResult" payload)
+              sendTextData conn $! mkPayload "broadcastResult" payload
             _ -> error "client violated protocol!"
         _ -> error "client sent binary message!"
 
