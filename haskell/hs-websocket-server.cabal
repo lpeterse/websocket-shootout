@@ -26,6 +26,7 @@ executable hs-websocket-server
                      , http-types
                      , lens
                      , lens-aeson
+                     , network
                      -- , raw-strings-qq
                      , stm
                      -- , stm-containers
@@ -34,4 +35,3 @@ executable hs-websocket-server
                      , wai-websockets
                      , warp
                      , websockets
-                     , yesod-websockets
